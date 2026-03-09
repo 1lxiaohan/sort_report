@@ -2,104 +2,16 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Bubble Sort Animation</title>
-
-<style>
-body{
-    text-align:center;
-    font-family:Arial;
-}
-
-#container{
-    display:flex;
-    justify-content:center;
-    align-items:flex-end;
-    height:300px;
-    margin-top:40px;
-}
-
-.bar{
-    width:30px;
-    margin:3px;
-    background:steelblue;
-}
-
-.active{
-    background:red;
-}
-
-.sorted{
-    background:green;
-}
-</style>
+<title>Sorting Algorithm Menu</title>
 </head>
 
 <body>
 
-<h2>Bubble Sort Animation</h2>
-<button onclick="startSort()">Start Sorting</button>
+<h1>Sorting Algorithm Demo</h1>
 
-<div id="container"></div>
+<p>Click the link below to see the Bubble Sort animation:</p>
 
-<script>
-
-let array = [];
-let container = document.getElementById("container");
-
-function generateArray(){
-    container.innerHTML="";
-    array=[];
-
-    for(let i=0;i<20;i++){
-        let value = Math.floor(Math.random()*200)+20;
-        array.push(value);
-
-        let bar=document.createElement("div");
-        bar.classList.add("bar");
-        bar.style.height=value+"px";
-
-        container.appendChild(bar);
-    }
-}
-
-function sleep(ms){
-    return new Promise(resolve=>setTimeout(resolve,ms));
-}
-
-async function startSort(){
-
-    let bars=document.getElementsByClassName("bar");
-
-    for(let i=0;i<array.length;i++){
-
-        for(let j=0;j<array.length-i-1;j++){
-
-            bars[j].classList.add("active");
-            bars[j+1].classList.add("active");
-
-            await sleep(150);
-
-            if(array[j] > array[j+1]){
-
-                let temp=array[j];
-                array[j]=array[j+1];
-                array[j+1]=temp;
-
-                bars[j].style.height=array[j]+"px";
-                bars[j+1].style.height=array[j+1]+"px";
-            }
-
-            bars[j].classList.remove("active");
-            bars[j+1].classList.remove("active");
-        }
-
-        bars[array.length-i-1].classList.add("sorted");
-    }
-}
-
-generateArray();
-
-</script>
+<a href="bubble-sort.html">Open Bubble Sort Animation</a>
 
 </body>
 </html>
