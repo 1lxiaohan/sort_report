@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <unistd.h>
+
+#define SIZE 10
+
+// 顏色
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define RESET "\033[0m"
+
+void drawBars(int arr[], int a, int b, int sorted)
+{
+    printf("\033[H\033[J"); // 清除畫面
+    printf("Bubble Sort Animation\n\n");
+
+    for(int i = 0; i < SIZE; i++)
+    {
+        if(sorted)
+            printf(GREEN);
+
+        else if(i == a || i == b)
+            printf(RED);
+
+        printf("%2d | ", arr[i]);
+
+        for(int j = 0; j < arr[i]; j++)
+            printf("█");
+
+        printf(RESET);
+        printf("\n");
+    }
+}
+
+void bubbleSort(int arr[])
+{
+    for(int i = 0; i < SIZE-1; i++)
+    {
+        for(int j = 0; j < SIZE-i-1; j++)
+        {
+            drawBars(arr, j, j+1, 0);
+            usleep(300000);
+
+            if(arr[j] > arr[j+1])
+            {
+                int temp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = temp;
+
+                drawBars(arr, j, j+1, 0);
+                usleep(300000);
+            }
+        }
+    }
+}
+
+int main()
+{
+    int arr[SIZE] = {8,3,6,2,9,1,5,4,7,3};
+
+    drawBars(arr, -1, -1, 0);
+    usleep(500000);
+
+    bubbleSort(arr);
+
+    drawBars(arr, -1, -1, 1);
+
+    printf("\nSorting Complete!\n");
+
+    return 0;
+}
