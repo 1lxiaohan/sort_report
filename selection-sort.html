@@ -6,89 +6,94 @@
     <style>
         :root {
             --primary: #3498db;
-            --min-target: #f1c40f; /* 當前找到的最小值 */
-            --comparing: #e74c3c;  /* 正在掃描比對的對象 */
-            --success: #2ecc71;    /* 已定位的完成部分 */
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --highlight: #f1c40f; /* 新增高亮顏色，用來標示當前最小值 */
             --bg: #f4f7f6;
         }
         body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         /* 視覺化圖表區域 */
-        #visualizer { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 5px; margin: 20px 0; border-bottom: 2px solid #ddd; }
-        .bar { background: var(--primary); color: white; text-align: center; border-radius: 4px 4px 0 0; transition: transform 0.2s, background 0.2s; font-size: 12px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; flex: 1; }
-        .comparing { background: var(--comparing) !important; transform: scaleY(1.05); }
-        .is-min { background: var(--min-target) !important; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        .sorted { background: var(--success) !important; }
+        #visualizer { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 8px; margin: 20px 0; border-bottom: 2px solid #ddd; }
+        .bar { width: 40px; background: var(--primary); color: white; text-align: center; border-radius: 4px 4px 0 0; transition: transform 0.2s, background 0.2s; font-size: 14px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; }
+        
+        /* 狀態顏色 */
+        .comparing { background: var(--accent) !important; transform: scale(1.1); }
+        .current-min { background: var(--highlight) !important; transform: scale(1.1); color: #333; font-weight: bold; }
+        .sorted { background: var(--success) !important; opacity: 0.8; }
 
         /* 控制區 */
-        .controls { display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 20px; flex-wrap: wrap; }
-        input[type="number"] { width: 50px; padding: 5px; }
+        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
         button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         #startBtn { background: var(--primary); color: white; }
         #pauseBtn { background: #f39c12; color: white; }
         #resetBtn { background: #95a5a6; color: white; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* 圖例區 */
+        .legend { display: flex; justify-content: center; gap: 15px; margin-top: 10px; font-size: 0.9em; }
+        .legend span { display: inline-block; width: 15px; height: 15px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+
         /* 教學資訊 */
-        .info-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .status-msg { font-size: 1.1em; font-weight: bold; color: #2c3e50; text-align: center; height: 40px; background: #eee; line-height: 40px; border-radius: 5px; }
+        .info-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+        .status-msg { font-size: 1.2em; font-weight: bold; color: #333; text-align: center; height: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>選擇排序法 (Selection Sort)</h1>
+    <h1>選擇排序法 (Selection Sort) 互動教學</h1>
     
+    <div class="legend">
+        <div><span style="background: var(--success);"></span>已排序</div>
+        <div><span style="background: var(--highlight);"></span>當前最小值</div>
+        <div><span style="background: var(--accent);"></span>掃描比較中</div>
+    </div>
+
     <div id="visualizer"></div>
-    <div class="status-msg" id="status">設定個數後點擊「開始」</div>
+    <div class="status-msg" id="status">點擊「開始」觀察排序過程</div>
 
     <div class="controls">
-        <label>元素個數: <input type="number" id="arraySize" value="10" min="5" max="30"></label>
-        <button id="startBtn" onclick="initAndStart()">開始排序</button>
+        <button id="startBtn" onclick="startSort()">開始排序</button>
         <button id="pauseBtn" onclick="togglePause()">暫停</button>
-        <button id="resetBtn" onclick="resetUI()">重置</button>
+        <button id="resetBtn" onclick="resetArray()">重置數列</button>
     </div>
 
     <div class="info-section">
-        <div>
-            <h3>1. 操作原理</h3>
-            <p>將數列分為「已排序」和「未排序」兩部分。每一輪從未排序的部分中找尋<strong>最小值</strong>，並將它與未排序部分的第一個元素進行交換。</p>
-        </div>
-        <div>
-            <h3>2. 複雜度分析</h3>
-            <ul>
-                <li><strong>時間複雜度：</strong> 始終為 $O(n^2)$</li>
-                <li><strong>空間複雜度：</strong> $O(1)$</li>
-                <li><strong>特色：</strong> 交換次數極少，每一輪最多只交換一次。</li>
-            </ul>
-        </div>
+        <h3>1. 操作原理</h3>
+        <p>將數列分為「已排序」與「未排序」兩部分。每一輪會從未排序的數列中<b>掃描尋找最小值</b>，找到後，將這個最小值與未排序區域的第一個元素進行交換，將其納入已排序區域。</p>
+        
+        <h3>2. 複雜度分析</h3>
+        <ul>
+            <li><strong>平均與最壞時間複雜度：</strong> $O(n^2)$</li>
+            <li><strong>最佳時間複雜度：</strong> $O(n^2)$ (即使已排序，仍需掃描確認最小值)</li>
+            <li><strong>空間複雜度：</strong> $O(1)$ (原地排序)</li>
+        </ul>
     </div>
 </div>
 
 <script>
     let array = [];
-    let isPaused = false;
-    let isRunning = false;
     const container = document.getElementById('visualizer');
     const statusText = document.getElementById('status');
+    let isPaused = false;
+    let isRunning = false;
 
-    function resetUI() {
-        isRunning = false;
+    // 初始化隨機數列
+    function resetArray() {
+        array = Array.from({length: 10}, () => Math.floor(Math.random() * 50) + 10);
         isPaused = false;
+        isRunning = false;
         document.getElementById('pauseBtn').innerText = "暫停";
         document.getElementById('startBtn').disabled = false;
-        const size = document.getElementById('arraySize').value;
-        generateArray(size);
-        statusText.innerText = "數列已生成";
+        statusText.innerText = "數列已重置";
+        render(-1, -1, []);
     }
 
-    function generateArray(size) {
-        array = Array.from({length: size}, () => Math.floor(Math.random() * 50) + 10);
-        render();
-    }
-
-    function render(specialIndices = {}) {
+    // 渲染函式更新：加入 currentMinIdx 用來標示目前找到的最小值
+    function render(comparingIdx = -1, currentMinIdx = -1, sortedIndices = []) {
         container.innerHTML = '';
         array.forEach((val, i) => {
             const bar = document.createElement('div');
@@ -96,9 +101,13 @@
             bar.style.height = `${val * 3}px`;
             bar.innerText = val;
             
-            if (specialIndices.comparing === i) bar.classList.add('comparing');
-            if (specialIndices.minIdx === i) bar.classList.add('is-min');
-            if (i < specialIndices.sortedCount) bar.classList.add('sorted');
+            if (sortedIndices.includes(i)) {
+                bar.classList.add('sorted');
+            } else if (i === currentMinIdx) {
+                bar.classList.add('current-min');
+            } else if (i === comparingIdx) {
+                bar.classList.add('comparing');
+            }
             
             container.appendChild(bar);
         });
@@ -107,61 +116,72 @@
     function sleep(ms) {
         return new Promise(resolve => {
             const check = () => {
-                if (!isPaused && isRunning) resolve();
-                else if (!isRunning) return; 
+                if (!isPaused) resolve();
                 else setTimeout(check, 100);
             };
             setTimeout(check, ms);
         });
     }
 
-    async function initAndStart() {
+    async function startSort() {
         if (isRunning) return;
         isRunning = true;
         document.getElementById('startBtn').disabled = true;
-        await selectionSort();
-    }
-
-    async function selectionSort() {
+        
         let n = array.length;
+        let sortedIndices = [];
+
         for (let i = 0; i < n; i++) {
             let minIdx = i;
-            statusText.innerText = `第 ${i+1} 輪：假設索引 ${i} (${array[i]}) 是最小的`;
-            render({ minIdx: minIdx, sortedCount: i });
-            await sleep(600);
+            statusText.innerText = `第 ${i+1} 輪：先將索引 ${i} (${array[i]}) 設為當前最小值`;
+            render(-1, minIdx, sortedIndices);
+            await sleep(800);
 
+            // 在未排序區間尋找最小值
             for (let j = i + 1; j < n; j++) {
-                if (!isRunning) return;
-                statusText.innerText = `檢查 ${array[j]} 是否比當前最小 ${array[minIdx]} 還小？`;
-                render({ comparing: j, minIdx: minIdx, sortedCount: i });
-                await sleep(400);
+                if (!isRunning) return; // 處理重置
+                
+                statusText.innerText = `掃描中... 比較當前最小值 ${array[minIdx]} 與 ${array[j]}`;
+                render(j, minIdx, sortedIndices);
+                await sleep(500);
 
                 if (array[j] < array[minIdx]) {
                     minIdx = j;
-                    statusText.innerText = `發現新最小值：${array[minIdx]}！`;
-                    render({ minIdx: minIdx, sortedCount: i });
-                    await sleep(400);
+                    statusText.innerText = `發現更小的值！更新最小值為 ${array[minIdx]}`;
+                    render(-1, minIdx, sortedIndices);
+                    await sleep(600);
                 }
             }
 
+            // 如果最小值不是原本的起點，就進行交換
             if (minIdx !== i) {
-                statusText.innerText = `交換 ${array[i]} 和 ${array[minIdx]}`;
+                statusText.innerText = `本輪結束，將最小值 ${array[minIdx]} 與位置 ${i} (${array[i]}) 交換`;
                 [array[i], array[minIdx]] = [array[minIdx], array[i]];
-                render({ sortedCount: i + 1 });
+                // 為了呈現交換瞬間，高亮這兩個位置
+                render(minIdx, i, sortedIndices);
+                await sleep(800);
+            } else {
+                statusText.innerText = `${array[i]} 已經是未排序區的最小值，不需交換`;
                 await sleep(600);
             }
+
+            // 將該位置加入已排序陣列
+            sortedIndices.push(i);
+            render(-1, -1, sortedIndices);
         }
-        statusText.innerText = "排序完成！";
+        
+        statusText.innerText = "排序完成！由左至右已依序排列。";
         isRunning = false;
-        document.getElementById('startBtn').disabled = false;
     }
 
     function togglePause() {
         isPaused = !isPaused;
         document.getElementById('pauseBtn').innerText = isPaused ? "繼續" : "暫停";
+        statusText.innerText = isPaused ? "程式已暫停" : "繼續排序...";
     }
 
-    resetUI();
+    resetArray();
 </script>
+
 </body>
 </html>
