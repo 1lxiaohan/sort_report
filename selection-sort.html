@@ -1,123 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>選擇排序動畫</title>
+    <meta charset="UTF-8">
+    <title>選擇排序法互動教學</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --min-target: #f1c40f; /* 當前找到的最小值 */
+            --comparing: #e74c3c;  /* 正在掃描比對的對象 */
+            --success: #2ecc71;    /* 已定位的完成部分 */
+            --bg: #f4f7f6;
+        }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* 視覺化圖表區域 */
+        #visualizer { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 5px; margin: 20px 0; border-bottom: 2px solid #ddd; }
+        .bar { background: var(--primary); color: white; text-align: center; border-radius: 4px 4px 0 0; transition: transform 0.2s, background 0.2s; font-size: 12px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; flex: 1; }
+        .comparing { background: var(--comparing) !important; transform: scaleY(1.05); }
+        .is-min { background: var(--min-target) !important; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .sorted { background: var(--success) !important; }
 
-<style>
-body{
-    text-align:center;
-    font-family:Arial;
-}
+        /* 控制區 */
+        .controls { display: flex; gap: 15px; justify-content: center; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+        input[type="number"] { width: 50px; padding: 5px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #startBtn { background: var(--primary); color: white; }
+        #pauseBtn { background: #f39c12; color: white; }
+        #resetBtn { background: #95a5a6; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-#container{
-    display:flex;
-    justify-content:center;
-    align-items:flex-end;
-    height:300px;
-    margin-top:40px;
-}
-
-.bar{
-    width:30px;
-    margin:3px;
-    background:steelblue;
-}
-
-.active{
-    background:red;
-}
-
-.sorted{
-    background:green;
-}
-
-.min{
-    background:orange;
-}
-</style>
+        /* 教學資訊 */
+        .info-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .status-msg { font-size: 1.1em; font-weight: bold; color: #2c3e50; text-align: center; height: 40px; background: #eee; line-height: 40px; border-radius: 5px; }
+    </style>
 </head>
-
 <body>
 
-<h2>選擇排序動畫</h2>
-<label for="arraySize">元素個數：</label>
-<input type="number" id="arraySize" value="20" min="1" max="50">
-<button onclick="generateArray()">生成數組</button>
-<button onclick="startSort()">開始排序</button>
+<div class="container">
+    <h1>選擇排序法 (Selection Sort)</h1>
+    
+    <div id="visualizer"></div>
+    <div class="status-msg" id="status">設定個數後點擊「開始」</div>
 
-<div id="container"></div>
+    <div class="controls">
+        <label>元素個數: <input type="number" id="arraySize" value="10" min="5" max="30"></label>
+        <button id="startBtn" onclick="initAndStart()">開始排序</button>
+        <button id="pauseBtn" onclick="togglePause()">暫停</button>
+        <button id="resetBtn" onclick="resetUI()">重置</button>
+    </div>
+
+    <div class="info-section">
+        <div>
+            <h3>1. 操作原理</h3>
+            <p>將數列分為「已排序」和「未排序」兩部分。每一輪從未排序的部分中找尋<strong>最小值</strong>，並將它與未排序部分的第一個元素進行交換。</p>
+        </div>
+        <div>
+            <h3>2. 複雜度分析</h3>
+            <ul>
+                <li><strong>時間複雜度：</strong> 始終為 $O(n^2)$</li>
+                <li><strong>空間複雜度：</strong> $O(1)$</li>
+                <li><strong>特色：</strong> 交換次數極少，每一輪最多只交換一次。</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 <script>
+    let array = [];
+    let isPaused = false;
+    let isRunning = false;
+    const container = document.getElementById('visualizer');
+    const statusText = document.getElementById('status');
 
-let array = [];
-let container = document.getElementById("container");
-
-function generateArray(){
-    let size = parseInt(document.getElementById("arraySize").value);
-    if(size < 1 || size > 50) {
-        alert("請輸入 1 到 50 之間的數字");
-        return;
+    function resetUI() {
+        isRunning = false;
+        isPaused = false;
+        document.getElementById('pauseBtn').innerText = "暫停";
+        document.getElementById('startBtn').disabled = false;
+        const size = document.getElementById('arraySize').value;
+        generateArray(size);
+        statusText.innerText = "數列已生成";
     }
-    container.innerHTML="";
-    array=[];
 
-    for(let i=0;i<size;i++){
-        let value = Math.floor(Math.random()*200)+20;
-        array.push(value);
-
-        let bar=document.createElement("div");
-        bar.classList.add("bar");
-        bar.style.height=value+"px";
-
-        container.appendChild(bar);
+    function generateArray(size) {
+        array = Array.from({length: size}, () => Math.floor(Math.random() * 50) + 10);
+        render();
     }
-}
 
-function sleep(ms){
-    return new Promise(resolve=>setTimeout(resolve,ms));
-}
+    function render(specialIndices = {}) {
+        container.innerHTML = '';
+        array.forEach((val, i) => {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${val * 3}px`;
+            bar.innerText = val;
+            
+            if (specialIndices.comparing === i) bar.classList.add('comparing');
+            if (specialIndices.minIdx === i) bar.classList.add('is-min');
+            if (i < specialIndices.sortedCount) bar.classList.add('sorted');
+            
+            container.appendChild(bar);
+        });
+    }
 
-async function startSort(){
+    function sleep(ms) {
+        return new Promise(resolve => {
+            const check = () => {
+                if (!isPaused && isRunning) resolve();
+                else if (!isRunning) return; 
+                else setTimeout(check, 100);
+            };
+            setTimeout(check, ms);
+        });
+    }
 
-    let bars=document.getElementsByClassName("bar");
+    async function initAndStart() {
+        if (isRunning) return;
+        isRunning = true;
+        document.getElementById('startBtn').disabled = true;
+        await selectionSort();
+    }
 
-    for(let i=0;i<array.length;i++){
+    async function selectionSort() {
+        let n = array.length;
+        for (let i = 0; i < n; i++) {
+            let minIdx = i;
+            statusText.innerText = `第 ${i+1} 輪：假設索引 ${i} (${array[i]}) 是最小的`;
+            render({ minIdx: minIdx, sortedCount: i });
+            await sleep(600);
 
-        let minIdx = i;
-        bars[minIdx].classList.add("min");
+            for (let j = i + 1; j < n; j++) {
+                if (!isRunning) return;
+                statusText.innerText = `檢查 ${array[j]} 是否比當前最小 ${array[minIdx]} 還小？`;
+                render({ comparing: j, minIdx: minIdx, sortedCount: i });
+                await sleep(400);
 
-        for(let j=i+1;j<array.length;j++){
-
-            bars[j].classList.add("active");
-            await sleep(150);
-
-            if(array[j] < array[minIdx]){
-                bars[minIdx].classList.remove("min");
-                minIdx = j;
-                bars[minIdx].classList.add("min");
+                if (array[j] < array[minIdx]) {
+                    minIdx = j;
+                    statusText.innerText = `發現新最小值：${array[minIdx]}！`;
+                    render({ minIdx: minIdx, sortedCount: i });
+                    await sleep(400);
+                }
             }
 
-            bars[j].classList.remove("active");
+            if (minIdx !== i) {
+                statusText.innerText = `交換 ${array[i]} 和 ${array[minIdx]}`;
+                [array[i], array[minIdx]] = [array[minIdx], array[i]];
+                render({ sortedCount: i + 1 });
+                await sleep(600);
+            }
         }
-
-        if(minIdx !== i){
-            // Swap
-            let temp=array[i];
-            array[i]=array[minIdx];
-            array[minIdx]=temp;
-
-            bars[i].style.height=array[i]+"px";
-            bars[minIdx].style.height=array[minIdx]+"px";
-        }
-
-        bars[minIdx].classList.remove("min");
-        bars[i].classList.add("sorted");
+        statusText.innerText = "排序完成！";
+        isRunning = false;
+        document.getElementById('startBtn').disabled = false;
     }
-}
 
-generateArray();
+    function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('pauseBtn').innerText = isPaused ? "繼續" : "暫停";
+    }
+
+    resetUI();
 </script>
 </body>
-</html></content>
-<parameter name="filePath">d:\0302\.vscode\selection-sort.html
+</html>

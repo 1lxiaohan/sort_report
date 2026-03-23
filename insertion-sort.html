@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>插入排序法互動教學</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --highlight: #f1c40f; /* 新增一個顏色代表當前取出的 Key */
+            --bg: #f4f7f6;
+        }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* 視覺化圖表區域 */
+        #visualizer { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 8px; margin: 20px 0; border-bottom: 2px solid #ddd; }
+        .bar { width: 40px; background: var(--primary); color: white; text-align: center; border-radius: 4px 4px 0 0; transition: transform 0.2s, background 0.2s, height 0.2s; font-size: 14px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; }
+        
+        /* 狀態樣式 */
+        .sorted { background: var(--success) !important; opacity: 0.8; } /* 已排序區域 */
+        .comparing { background: var(--accent) !important; transform: scale(1.1); } /* 正在比較的元素 */
+        .key { background: var(--highlight) !important; transform: translateY(-15px); color: #333; font-weight: bold; } /* 當前準備插入的元素，稍微往上提 */
+
+        /* 控制區 */
+        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        #startBtn { background: var(--primary); color: white; }
+        #pauseBtn { background: #f39c12; color: white; }
+        #resetBtn { background: #95a5a6; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 教學資訊 */
+        .info-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+        .status-msg { font-size: 1.2em; font-weight: bold; color: #333; text-align: center; height: 30px; }
+        
+        /* 圖例 */
+        .legend { display: flex; justify-content: center; gap: 15px; margin-top: 10px; font-size: 0.9em; }
+        .legend span { display: inline-block; width: 12px; height: 12px; margin-right: 5px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>插入排序法 (Insertion Sort) 互動教學</h1>
+    
+    <div id="visualizer"></div>
+    <div class="status-msg" id="status">點擊「開始」觀察排序過程</div>
+    
+    <div class="legend">
+        <div><span style="background: var(--success);"></span>已排序區</div>
+        <div><span style="background: var(--highlight);"></span>當前插入值 (Key)</div>
+        <div><span style="background: var(--accent);"></span>掃描比較中</div>
+    </div>
+
+    <div class="controls">
+        <button id="startBtn" onclick="startSort()">開始排序</button>
+        <button id="pauseBtn" onclick="togglePause()">暫停</button>
+        <button id="resetBtn" onclick="resetArray()">重置數列</button>
+    </div>
+
+    <div class="info-section">
+        <h3>1. 操作原理</h3>
+        <p>將數列分為「已排序」與「未排序」兩部分。從未排序部分拿出第一個元素（Key），由後往前掃描已排序部分，如果遇到比 Key 大的元素，就將該元素往右移一格，直到找到適合的位置並將 Key 插入，就像是在玩撲克牌時理牌的動作。</p>
+        
+        <h3>2. 複雜度分析</h3>
+        <ul>
+            <li><strong>平均與最壞時間複雜度：</strong> O(n<sup>2</sup>)</li>
+            <li><strong>最佳時間複雜度：</strong> O(n) (當數列已經是排序好的狀態)</li>
+            <li><strong>空間複雜度：</strong> O(1) (原地排序)</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    let array = [];
+    const container = document.getElementById('visualizer');
+    const statusText = document.getElementById('status');
+    let isPaused = false;
+    let isRunning = false;
+
+    // 初始化隨機數列
+    function resetArray() {
+        array = Array.from({length: 10}, () => Math.floor(Math.random() * 50) + 10);
+        isPaused = false;
+        isRunning = false;
+        document.getElementById('pauseBtn').innerText = "暫停";
+        document.getElementById('startBtn').disabled = false;
+        statusText.innerText = "數列已重置";
+        render(); // 初始狀態沒有任何標記
+    }
+
+    // 渲染畫面
+    // sortedLimit: 標示 0 ~ sortedLimit 的範圍為綠色已排序區
+    // keyIndex: 當前被拔起來準備插入的元素位置
+    // compareIndex: 當前正在與 key 比較的元素位置
+    function render(sortedLimit = -1, keyIndex = -1, compareIndex = -1) {
+        container.innerHTML = '';
+        array.forEach((val, i) => {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.height = `${val * 3}px`;
+            bar.innerText = val;
+            
+            if (i === keyIndex) {
+                bar.classList.add('key');
+            } else if (i === compareIndex) {
+                bar.classList.add('comparing');
+            } else if (i <= sortedLimit) {
+                bar.classList.add('sorted');
+            }
+            
+            container.appendChild(bar);
+        });
+    }
+
+    // 等待函式，支援暫停邏輯
+    function sleep(ms) {
+        return new Promise(resolve => {
+            const check = () => {
+                if (!isPaused) resolve();
+                else setTimeout(check, 100);
+            };
+            setTimeout(check, ms);
+        });
+    }
+
+    async function startSort() {
+        if (isRunning) return;
+        isRunning = true;
+        document.getElementById('startBtn').disabled = true;
+        
+        let n = array.length;
+
+        // 一開始第 0 個元素視為已排序
+        render(0);
+        await sleep(500);
+
+        for (let i = 1; i < n; i++) {
+            if (!isRunning) return; // 處理重置
+            
+            let key = array[i];
+            let j = i - 1;
+
+            statusText.innerText = `取出數值 ${key} 作為當前插入值 (Key)`;
+            // 標示已排序範圍為 i-1，當前 key 的位置是 i
+            render(i - 1, i, -1);
+            await sleep(800);
+
+            // 往左尋找插入位置
+            while (j >= 0 && array[j] > key) {
+                if (!isRunning) return;
+                
+                statusText.innerText = `比較 ${array[j]} 與 ${key}：${array[j]} 較大，將 ${array[j]} 往右移`;
+                // 標示正在比較的元素 j
+                render(i - 1, j + 1, j);
+                await sleep(600);
+
+                array[j + 1] = array[j]; // 元素往右移
+                j = j - 1;
+                
+                // 顯示移動後的狀態
+                render(i - 1, j + 1, -1);
+                await sleep(400);
+            }
+
+            // 找到正確位置，將 key 插入
+            array[j + 1] = key;
+            statusText.innerText = `找到位置！將 ${key} 插入到索引 ${j + 1}`;
+            
+            // 更新已排序範圍到 i
+            render(i);
+            await sleep(600);
+        }
+        
+        statusText.innerText = "排序完成！所有撲克牌已理好。";
+        render(n - 1); // 全標示為已排序
+        isRunning = false;
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('pauseBtn').innerText = isPaused ? "繼續" : "暫停";
+        statusText.innerText = isPaused ? "程式已暫停" : "繼續排序...";
+    }
+
+    resetArray();
+</script>
+
+</body>
+</html>
