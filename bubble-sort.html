@@ -2,145 +2,536 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>氣泡排序法互動教學</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氣泡排序法 - 專業互動視覺化</title>
     <style>
         :root {
-            --primary: #3498db;
-            --accent: #e74c3c;
-            --success: #2ecc71;
-            --bg: #f4f7f6;
+            --bg-dark: #232531;
+            --panel-bg: #323546;
+            --box-bg: #40445a;
+            --text-main: #f1f1f1;
+            --text-muted: #a0a4b8;
+            
+            --btn-cyan: #4dc2c2;
+            --btn-yellow: #f3c246;
+            --btn-green: #68d35e;
+            --btn-red: #e76666;
+            --btn-blue: #5499db;
+            
+            --bar-default: #5bc0be;
+            --bar-compare: #f39c12;
+            --bar-swap: #e74c3c;
+            --bar-sorted: #68ea68;
         }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; line-height: 1.6; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        /* 視覺化圖表區域 */
-        #visualizer { display: flex; align-items: flex-end; justify-content: center; height: 200px; gap: 8px; margin: 20px 0; border-bottom: 2px solid #ddd; }
-        .bar { width: 40px; background: var(--primary); color: white; text-align: center; border-radius: 4px 4px 0 0; transition: transform 0.2s, background 0.2s; font-size: 14px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; }
-        .comparing { background: var(--accent) !important; transform: scale(1.1); }
-        .sorted { background: var(--success) !important; }
 
-        /* 控制區 */
-        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        #startBtn { background: var(--primary); color: white; }
-        #pauseBtn { background: #f39c12; color: white; }
-        #resetBtn { background: #95a5a6; color: white; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: var(--btn-cyan);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+        }
+        h2::before {
+            content: "❚";
+            margin-right: 10px;
+            color: var(--btn-cyan);
+        }
+        
+        p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
+
+        /* 統計與資訊面板 Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .info-grid.two-cols {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background-color: var(--box-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: var(--btn-cyan); margin-bottom: 5px; }
+        .info-value { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* 控制列 */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            background-color: var(--box-bg);
+            border: 1px solid #505570;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            width: 250px;
+            font-size: 1rem;
+        }
+
+        button {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.8; }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* 教學資訊 */
-        .info-section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
-        .status-msg { font-size: 1.2em; font-weight: bold; color: var(--accent); text-align: center; height: 30px; }
+        .btn-cyan { background-color: var(--btn-cyan); color: #111; }
+        .btn-yellow { background-color: var(--btn-yellow); color: #111; }
+        .btn-green { background-color: var(--btn-green); }
+        .btn-red { background-color: var(--btn-red); }
+        .btn-blue { background-color: var(--btn-blue); }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+
+        /* 視覺化區域 */
+        #visualizer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 250px;
+            gap: 15px;
+            padding: 20px 0;
+            margin-bottom: 10px;
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bar {
+            width: 40px;
+            background-color: var(--bar-default);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s, background-color 0.2s, transform 0.2s;
+            position: relative;
+        }
+        .bar.comparing { background-color: var(--bar-compare); }
+        .bar.swapping { background-color: var(--bar-swap); transform: translateY(-10px); }
+        .bar.sorted { background-color: var(--bar-sorted); }
+
+        .bar-value { font-weight: bold; font-size: 0.9rem; margin-bottom: 2px; }
+        .bar-index { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* 狀態訊息列 */
+        .status-banner {
+            background-color: var(--box-bg);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 步驟日誌 */
+        .log-container {
+            background-color: #1e1f29;
+            border: 1px solid var(--box-bg);
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .log-entry { margin-bottom: 4px; }
+        .log-entry.round { color: var(--btn-green); font-weight: bold; margin-top: 10px; }
+        .log-entry.highlight { color: var(--btn-yellow); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>氣泡排序法 (Bubble Sort) 互動教學</h1>
     
-    <div id="visualizer"></div>
-    <div class="status-msg" id="status">點擊「開始」觀察排序過程</div>
-
-    <div class="controls">
-        <button id="startBtn" onclick="startSort()">開始排序</button>
-        <button id="pauseBtn" onclick="togglePause()">暫停</button>
-        <button id="resetBtn" onclick="resetArray()">重置數列</button>
+    <div class="panel">
+        <h2>一、操作原理</h2>
+        <p>氣泡排序法 (Bubble Sort) 是一種簡單直觀的排序演算法。它會重複地走訪要排序的數列，一次比較兩個相鄰的元素。如果發現它們的順序錯誤（例如：前大後小），就將它們交換過來。</p>
+        <p>每一輪比較結束後，該輪最大的元素會像氣泡一樣「浮」到數列的最右端（即正確的位置）。重複此走訪過程，直到沒有任何元素需要再交換為止，即代表排序完成。</p>
     </div>
 
-    <div class="info-section">
-        <h3>1. 操作原理</h3>
-        <p>從第一個元素開始，重複地比較相鄰的兩個元素。如果順序錯誤（前大後小）就交換。每一輪結束，最大的數字會像氣泡一樣「浮」到最右端。</p>
+    <div class="panel">
+        <h2>二、複雜度分析</h2>
+        <div class="info-grid">
+            <div class="stat-card">
+                <div class="info-value" style="color: var(--btn-green);">O(n)</div>
+                <div class="stat-label">最佳時間複雜度<br>(當數列已排序，只需掃描一輪)</div>
+            </div>
+            <div class="stat-card">
+                <div class="info-value" style="color: var(--btn-yellow);">O(n<sup>2</sup>)</div>
+                <div class="stat-label">平均時間複雜度</div>
+            </div>
+            <div class="stat-card">
+                <div class="info-value" style="color: var(--btn-red);">O(n<sup>2</sup>)</div>
+                <div class="stat-label">最壞時間複雜度<br>(當數列為完全反向)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>三、演算法特性</h2>
+        <div class="info-grid two-cols">
+            <div class="stat-card">
+                <div class="info-value" style="color: var(--btn-cyan);">穩定 ✓</div>
+                <div class="stat-label">穩定性 (Stability)<br>相等元素不會改變原始相對順序</div>
+            </div>
+            <div class="stat-card">
+                <div class="info-value" style="color: var(--text-main);">O(1)</div>
+                <div class="stat-label">空間複雜度 (Space Complexity)<br>原地排序 (In-place)，不需額外大量記憶體</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>四、互動視覺化操作</h2>
         
-        <h3>2. 複雜度分析</h3>
-        <ul>
-            <li><strong>平均與最壞時間複雜度：</strong> $O(n^2)$</li>
-            <li><strong>最佳時間複雜度：</strong> $O(n)$ (當數列已排序)</li>
-            <li><strong>空間複雜度：</strong> $O(1)$ (原地排序)</li>
-        </ul>
+        <div class="controls-row">
+            <div class="input-group">
+                <label>輸入數字 (逗號分隔)：</label>
+                <input type="text" id="arrayInput" value="64, 34, 25, 12, 22, 11, 90">
+                <button class="btn-cyan" onclick="loadArray()">載入 / 重置</button>
+                <button class="btn-yellow" onclick="generateRandom()">隨機產生</button>
+            </div>
+        </div>
+
+        <div class="controls-row">
+            <div class="slider-group">
+                <label>速度：</label>
+                <input type="range" id="speedSlider" min="50" max="1500" value="700" oninput="updateSpeedDisplay()">
+                <span id="speedDisplay">700ms</span>
+            </div>
+            
+            <button class="btn-green" id="startBtn" onclick="startSort()">▶ 開始排序</button>
+            <button class="btn-red" id="stopBtn" onclick="stopSort()" disabled>■ 停止</button>
+            <button class="btn-blue" id="stepBtn" onclick="stepNext()" disabled>⏭ 單步執行</button>
+        </div>
+
+        <div id="visualizer"></div>
+
+        <div class="status-banner" id="statusBanner">
+            等待開始排序...
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-comp">0</div>
+                <div class="stat-label">比較次數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-swap">0</div>
+                <div class="stat-label">交換次數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-round">0</div>
+                <div class="stat-label">已完成輪數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-size">7</div>
+                <div class="stat-label">陣列大小 n</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>五、步驟記錄</h2>
+        <div class="log-container" id="logContainer">
+            </div>
     </div>
 </div>
 
 <script>
+    // --- 核心狀態變數 ---
     let array = [];
-    const container = document.getElementById('visualizer');
-    const statusText = document.getElementById('status');
+    let originalArray = [];
+    let isSorting = false;
     let isPaused = false;
-    let isRunning = false;
+    let resolveStep = null; 
+    
+    // 統計數據
+    let compCount = 0;
+    let swapCount = 0;
+    let roundCount = 0;
 
-    // 初始化隨機數列
-    function resetArray() {
-        array = Array.from({length: 10}, () => Math.floor(Math.random() * 50) + 10);
-        isPaused = false;
-        isRunning = false;
-        document.getElementById('pauseBtn').innerText = "暫停";
-        document.getElementById('startBtn').disabled = false;
-        statusText.innerText = "數列已重置";
-        render();
+    // --- DOM 元素獲取 ---
+    const visualizer = document.getElementById('visualizer');
+    const arrayInput = document.getElementById('arrayInput');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const logContainer = document.getElementById('logContainer');
+    const statusBanner = document.getElementById('statusBanner');
+    
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const stepBtn = document.getElementById('stepBtn');
+
+    // --- 初始化與工具函式 ---
+
+    function updateSpeedDisplay() {
+        speedDisplay.innerText = `${speedSlider.value}ms`;
     }
 
-    function render(comparingIndices = [], sortedIndices = []) {
-        container.innerHTML = '';
+    function renderArray(comparing = [], swapping = [], sorted = []) {
+        visualizer.innerHTML = '';
+        const maxVal = Math.max(...array, 1); 
+        
         array.forEach((val, i) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bar-wrapper';
+
+            const valueLabel = document.createElement('div');
+            valueLabel.className = 'bar-value';
+            valueLabel.innerText = val;
+
             const bar = document.createElement('div');
             bar.className = 'bar';
-            bar.style.height = `${val * 3}px`;
-            bar.innerText = val;
-            if (comparingIndices.includes(i)) bar.classList.add('comparing');
-            if (sortedIndices.includes(i)) bar.classList.add('sorted');
-            container.appendChild(bar);
+            bar.style.height = `${(val / maxVal) * 200}px`;
+
+            if (sorted.includes(i)) bar.classList.add('sorted');
+            else if (swapping.includes(i)) bar.classList.add('swapping');
+            else if (comparing.includes(i)) bar.classList.add('comparing');
+
+            const indexLabel = document.createElement('div');
+            indexLabel.className = 'bar-index';
+            indexLabel.innerText = `[${i}]`;
+
+            wrapper.appendChild(valueLabel);
+            wrapper.appendChild(bar);
+            wrapper.appendChild(indexLabel);
+            visualizer.appendChild(wrapper);
         });
     }
 
-    // 等待函式，支援暫停邏輯
-    function sleep(ms) {
-        return new Promise(resolve => {
-            const check = () => {
-                if (!isPaused) resolve();
-                else setTimeout(check, 100);
-            };
-            setTimeout(check, ms);
-        });
+    function updateStats() {
+        document.getElementById('stat-comp').innerText = compCount;
+        document.getElementById('stat-swap').innerText = swapCount;
+        document.getElementById('stat-round').innerText = isSorting ? roundCount : (roundCount > 0 ? "完成" : 0);
+        document.getElementById('stat-size').innerText = array.length;
     }
 
-    async function startSort() {
-        if (isRunning) return;
-        isRunning = true;
-        document.getElementById('startBtn').disabled = true;
+    function addLog(message, type = '') {
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+        entry.innerText = message;
+        logContainer.appendChild(entry);
+        logContainer.scrollTop = logContainer.scrollHeight; 
+    }
+
+    // --- 控制邏輯 ---
+
+    function loadArray() {
+        if (isSorting) stopSort();
+        const inputStr = arrayInput.value;
+        array = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
         
-        let n = array.length;
-        let sortedIndices = [];
-
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n - i - 1; j++) {
-                if (!isRunning) return; // 處理重置
-                
-                statusText.innerText = `正在比較索引 ${j} (${array[j]}) 與 ${j+1} (${array[j+1]})`;
-                render([j, j + 1], sortedIndices);
-                await sleep(600);
-
-                if (array[j] > array[j + 1]) {
-                    statusText.innerText = `交換 ${array[j]} 與 ${array[j+1]}`;
-                    [array[j], array[j + 1]] = [array[j + 1], array[j]];
-                    render([j, j + 1], sortedIndices);
-                    await sleep(400);
-                }
-            }
-            // 每一輪結束，確定一個最大值
-            sortedIndices.push(n - 1 - i);
+        if (array.length === 0) {
+            array = [10, 20, 30]; 
+            arrayInput.value = "10, 20, 30";
         }
         
-        statusText.innerText = "排序完成！所有氣泡已定位。";
-        render([], Array.from({length: n}, (_, i) => i));
-        isRunning = false;
+        originalArray = [...array];
+        compCount = 0; swapCount = 0; roundCount = 0;
+        logContainer.innerHTML = '';
+        addLog(`載入初始陣列: [${array.join(', ')}]`);
+        statusBanner.innerHTML = `🏁 陣列已載入，準備就緒。`;
+        
+        updateStats();
+        renderArray();
     }
 
-    function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pauseBtn').innerText = isPaused ? "繼續" : "暫停";
-        statusText.innerText = isPaused ? "程式已暫停" : "繼續排序...";
+    function generateRandom() {
+        const size = Math.floor(Math.random() * 5) + 6; 
+        const randomArr = Array.from({length: size}, () => Math.floor(Math.random() * 90) + 10);
+        arrayInput.value = randomArr.join(', ');
+        loadArray();
     }
 
-    resetArray();
+    async function wait() {
+        if (!isSorting) throw new Error("STOPPED");
+        
+        if (isPaused) {
+            await new Promise(resolve => { resolveStep = resolve; });
+            if (!isSorting) throw new Error("STOPPED");
+        } else {
+            await new Promise(resolve => setTimeout(resolve, speedSlider.value));
+            if (!isSorting) throw new Error("STOPPED");
+        }
+    }
+
+    function stepNext() {
+        if (!isSorting) return;
+        isPaused = true; 
+        statusBanner.innerHTML = `⏸ 暫停中 (單步執行模式)...`;
+        if (resolveStep) {
+            const temp = resolveStep;
+            resolveStep = null;
+            temp(); 
+        }
+    }
+
+    function stopSort() {
+        isSorting = false;
+        if (resolveStep) resolveStep(); 
+        
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        stepBtn.disabled = true;
+        
+        array = [...originalArray]; 
+        compCount = 0; swapCount = 0; roundCount = 0;
+        statusBanner.innerHTML = `⏹ 排序已手動停止並重置。`;
+        addLog("--- 執行已手動停止 ---", "highlight");
+        updateStats();
+        renderArray();
+    }
+
+    // --- 氣泡排序核心演算法 ---
+
+    async function startSort() {
+        if (isSorting) return;
+        
+        isSorting = true;
+        isPaused = false;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        stepBtn.disabled = false;
+        
+        compCount = 0; swapCount = 0; roundCount = 0;
+        let n = array.length;
+        let sortedIndices = [];
+        logContainer.innerHTML = '';
+        addLog(`▶ 開始執行氣泡排序法，陣列大小: ${n}`, 'highlight');
+
+        try {
+            for (let i = 0; i < n - 1; i++) {
+                roundCount++;
+                addLog(`\n--- 第 ${roundCount} 輪 掃描開始 ---`);
+                updateStats();
+
+                let swappedInThisRound = false;
+
+                for (let j = 0; j < n - i - 1; j++) {
+                    statusBanner.innerHTML = `正在比較 [${j}]=${array[j]} 與 [${j+1}]=${array[j+1]}`;
+                    addLog(`比較 [${j}]=${array[j]} vs [${j+1}]=${array[j+1]}`);
+                    renderArray([j, j + 1], [], sortedIndices);
+                    compCount++;
+                    updateStats();
+                    
+                    await wait(); 
+
+                    if (array[j] > array[j + 1]) {
+                        statusBanner.innerHTML = `⚡ ${array[j]} > ${array[j+1]}，進行交換！`;
+                        addLog(`  -> 需要交換: ${array[j]} 與 ${array[j+1]}`, 'highlight');
+                        renderArray([], [j, j + 1], sortedIndices);
+                        await wait();
+
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        swapCount++;
+                        swappedInThisRound = true;
+                        updateStats();
+                        
+                        renderArray([j, j + 1], [], sortedIndices);
+                        await wait();
+                    } else {
+                        addLog(`  -> 不換`);
+                    }
+                }
+                
+                const sortedPos = n - 1 - i;
+                sortedIndices.push(sortedPos);
+                addLog(`第 ${roundCount} 輪完成，就位元素: ${array[sortedPos]} (於索引 ${sortedPos})`, 'round');
+                
+                if (!swappedInThisRound) {
+                    addLog(`★ 本輪無任何交換，陣列已提早排序完成！`, 'round');
+                    break;
+                }
+            }
+
+            isSorting = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            stepBtn.disabled = true;
+            
+            sortedIndices = array.map((_, i) => i);
+            renderArray([], [], sortedIndices);
+            updateStats();
+            
+            statusBanner.innerHTML = `🎉 排序完成！共比較 ${compCount} 次，交換 ${swapCount} 次。最終結果：[${array.join(', ')}]`;
+            addLog(`\n🎉 最終排序結果: [${array.join(', ')}]`, 'round');
+
+        } catch (error) {
+            if (error.message !== "STOPPED") {
+                console.error(error);
+            }
+        }
+    }
+
+    loadArray();
 </script>
 
 </body>

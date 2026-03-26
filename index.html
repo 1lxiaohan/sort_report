@@ -1,21 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>排序演算法選單</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排序演算法互動教學平台</title>
+    <style>
+        :root {
+            --bg-dark: #232531;
+            --panel-bg: #323546;
+            --box-bg: #40445a;
+            --text-main: #f1f1f1;
+            --text-muted: #a0a4b8;
+            
+            --btn-cyan: #4dc2c2;
+            --btn-yellow: #f3c246;
+            --btn-green: #68d35e;
+            --btn-red: #e76666;
+            --btn-blue: #5499db;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* 頂部標題區 */
+        .header-panel {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--btn-cyan);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* 選單卡片網格 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* 獨立卡片設計 */
+        .algo-card {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 30px 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .algo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-color: var(--btn-cyan);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .algo-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            transition: color 0.3s ease;
+        }
+
+        .algo-card:hover h2 {
+            color: var(--btn-cyan);
+        }
+
+        .algo-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        /* 底部虛擬按鈕 */
+        .card-btn {
+            background-color: var(--box-bg);
+            color: var(--btn-cyan);
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .algo-card:hover .card-btn {
+            background-color: var(--btn-cyan);
+            color: #111;
+        }
+
+        /* 個別卡片的強調色 */
+        .card-bubble .card-icon { color: var(--btn-blue); }
+        .card-selection .card-icon { color: var(--btn-yellow); }
+        .card-insertion .card-icon { color: var(--btn-green); }
+
+    </style>
+</head>
 <body>
 
-<h1>排序演算法示範</h1>
+<div class="container">
+    <div class="header-panel">
+        <h1>排序演算法互動平台</h1>
+        <div class="subtitle">探索、視覺化並理解經典排序演算法的運作原理</div>
+    </div>
 
-<p>點擊下方連結查看氣泡排序動畫：</p>
+    <div class="card-grid">
+        <a href="bubble-sort.html" class="algo-card card-bubble">
+            <div class="card-icon">🫧</div>
+            <h2>氣泡排序法</h2>
+            <p>透過不斷交換相鄰元素，將最大的數值像氣泡一樣「浮」到陣列最右端。適合用來理解元素交換的基礎概念。</p>
+            <div class="card-btn">進入動畫 ▶</div>
+        </a>
 
-<a href="bubble-sort.html">開啟氣泡排序動畫</a>
+        <a href="selection-sort.html" class="algo-card card-selection">
+            <div class="card-icon">🎯</div>
+            <h2>選擇排序法</h2>
+            <p>每一輪掃描未排序區域，精準鎖定真正的「最小值」，並將其直接交換到未排序區的最前面。有效減少交換次數。</p>
+            <div class="card-btn">進入動畫 ▶</div>
+        </a>
 
-<p>點擊下方連結查看選擇排序動畫：</p>
-
-<a href="selection-sort.html">開啟選擇排序動畫</a>
+        <a href="insertion-sort.html" class="algo-card card-insertion">
+            <div class="card-icon">🃏</div>
+            <h2>插入排序法</h2>
+            <p>如同整理撲克牌一般，抽出一個元素，在已排序的區域中由後往前尋找適當的空位插入。在近乎排序好的陣列中效率極高。</p>
+            <div class="card-btn">進入動畫 ▶</div>
+        </a>
+    </div>
+</div>
 
 </body>
 </html>
