@@ -18,7 +18,8 @@
 * **模擬實作內容：**
 
  ![alt text](image.png)
- ![alt text](image-1.png)
+<img width="519" height="126" alt="螢幕擷取畫面 2026-04-05 224527" src="https://github.com/user-attachments/assets/85c76073-1ad1-4bb2-b010-5ac187f87b3c" />
+
  
  
 
