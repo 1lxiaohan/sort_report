@@ -5,22 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>排序演算法互動教學平台</title>
     <style>
+        /* 定義馬卡龍色系變數 - 同氣泡排序法頁面 */
         :root {
-            --bg-dark: #232531;
-            --panel-bg: #323546;
-            --box-bg: #40445a;
-            --text-main: #f1f1f1;
-            --text-muted: #a0a4b8;
+            /* 整體背景：加深的燕麥奶茶色 */
+            --bg-dark: #E8E0D5; 
+            /* 選單卡片背景：純白 */
+            --panel-bg: #FFFFFF;
+            /* 卡片內按鈕未懸停背景：淡雅灰藍 */
+            --box-bg: #F0F4F8; 
             
-            --btn-cyan: #4dc2c2;
-            --btn-yellow: #f3c246;
-            --btn-green: #68d35e;
-            --btn-red: #e76666;
-            --btn-blue: #5499db;
+            /* 主要文字：深烘焙咖啡色 */
+            --text-main: #3A322C;
+            /* 次要文字（描述）：濃郁的可可灰 */
+            --text-muted: #73685F;
+            
+            /* 按鈕/強調顏色 - 皆改為粉嫩色調 */
+            --btn-cyan: #B8E3E3;   /* 粉藍綠 */
+            --btn-yellow: #FFF3B0; /* 粉黃 */
+            --btn-green: #C1E1C1;  /* 粉綠 */
+            --btn-red: #FFB7B2;    /* 粉紅 */
+            --btn-blue: #C3CDE6;   /* 粉藍 */
+            
+            /* 額外補充：紫色調 (快速排序) 與 橘色調 (堆積排序) */
+            --btn-purple: #DBC3E6; /* 粉紫 */
+            --btn-orange: #FFDAC1; /* 粉橘 */
+            
+            /* 柔和的陰影 */
+            --shadow: 0 8px 20px rgba(180, 170, 150, 0.2);
+            --shadow-hover: 0 15px 30px rgba(180, 170, 150, 0.3);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
@@ -33,7 +49,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
         }
 
@@ -44,10 +60,21 @@
         }
 
         h1 {
-            color: var(--btn-cyan);
+            color: #4A3F38; /* 大標題調為濃郁可可色 */
             font-size: 2.5rem;
             margin-bottom: 10px;
             letter-spacing: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 在標題兩側加入點綴小花花 */
+        h1::before, h1::after {
+            content: "✿";
+            margin: 0 15px;
+            font-size: 1.5rem;
+            color: #7AAFB8; /* 小花花稍微加深點綴 */
         }
 
         .subtitle {
@@ -58,7 +85,7 @@
         /* 選單卡片網格 */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
         }
 
@@ -71,15 +98,16 @@
             color: var(--text-main);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.03); /* 極淡的邊框界定白卡片 */
             transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow);
         }
 
         .algo-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            border-color: var(--btn-cyan);
+            box-shadow: var(--shadow-hover);
+            /* 懸停時邊框改為粉藍 */
+            border-color: var(--btn-blue);
         }
 
         .card-icon {
@@ -95,7 +123,8 @@
         }
 
         .algo-card:hover h2 {
-            color: var(--btn-cyan);
+            /* 懸停時標題文字也微變色 */
+            color: #5D534B; 
         }
 
         .algo-card p {
@@ -105,26 +134,34 @@
             margin-bottom: 25px;
         }
 
-        /* 底部虛擬按鈕 */
+        /* 底部虛擬按鈕 - 未懸停 */
         .card-btn {
-            background-color: var(--box-bg);
-            color: var(--btn-cyan);
+            background-color: var(--box-bg); /* F0F4F8 淡藍灰 */
+            color: #4A4540; /* 按鈕文字大幅加深以提升對比度 */
             text-align: center;
             padding: 10px;
             border-radius: 6px;
             font-weight: bold;
             transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
+        /* 底部虛擬按鈕 - 懸停 */
         .algo-card:hover .card-btn {
-            background-color: var(--btn-cyan);
-            color: #111;
+            background-color: var(--btn-blue); /* 統一懸停轉為粉藍色調 */
+            color: #2B3B5E; /* 懸停時文字大幅加深提升對比 */
         }
 
-        /* 個別卡片的強調色 */
-        .card-bubble .card-icon { color: var(--btn-blue); }
-        .card-selection .card-icon { color: var(--btn-yellow); }
-        .card-insertion .card-icon { color: var(--btn-green); }
+        /* 個別卡片圖示的粉嫩強調色 */
+        .card-bubble .card-icon { color: #86A8CB; } /* 粉藍稍微加深以突顯 */
+        .card-selection .card-icon { color: #D6A81C; } /* 粉黃 */
+        .card-insertion .card-icon { color: #86B286; } /* 粉綠 */
+        .card-merge .card-icon { color: #E08F8B; } /* 粉紅 */
+        .card-quick .card-icon { color: #AA7CBF; } /* 粉紫 */
+        .card-heap .card-icon { color: #E0A06B; } /* 粉橘 */
 
     </style>
 </head>
@@ -157,6 +194,22 @@
             <p>如同整理撲克牌一般，抽出一個元素，在已排序的區域中由後往前尋找適當的空位插入。在近乎排序好的陣列中效率極高。</p>
             <div class="card-btn">進入動畫 ▶</div>
         </a>
+
+        <a href="merge-sort.html" class="algo-card card-merge">
+            <div class="card-icon">🔀</div>
+            <h2>合併排序法</h2>
+            <p>採用分治法，將陣列不斷對半拆分直到只剩單一元素，再依序合併成已排序的陣列。處理大型資料時效率高且穩定。</p>
+            <div class="card-btn">進入動畫 ▶</div>
+        </a>
+
+        <a href="quick-sort.html" class="algo-card card-quick">
+            <div class="card-icon">⚡</div>
+            <h2>快速排序法</h2>
+            <p>同樣採用分治法，選定一個基準值（Pivot），將陣列分為大於與小於基準值的兩半部遞迴排序。實務上最常被使用的演算法之一。</p>
+            <div class="card-btn">進入動畫 ▶</div>
+        </a>
+
+    
     </div>
 </div>
 

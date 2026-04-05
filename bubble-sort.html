@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>氣泡排序法 - 專業互動視覺化</title>
+    <title>氣泡排序法 - 療癒馬卡龍視覺化</title>
     <style>
+        /* 定義馬卡龍色系變數 */
         :root {
-            --bg-dark: #232531;
-            --panel-bg: #323546;
-            --box-bg: #40445a;
-            --text-main: #f1f1f1;
-            --text-muted: #a0a4b8;
+            /* 整體背景：加深的燕麥奶茶色 */
+            --bg-dark: #E8E0D5; 
+            /* 面板背景：純白 */
+            --panel-bg: #FFFFFF;
+            /* 輸入框/統計卡片背景：淡雅灰藍 */
+            --box-bg: #F0F4F8; 
             
-            --btn-cyan: #4dc2c2;
-            --btn-yellow: #f3c246;
-            --btn-green: #68d35e;
-            --btn-red: #e76666;
-            --btn-blue: #5499db;
+            /* 【修改重點】主要文字：深烘焙咖啡色，濃郁且清晰 */
+            --text-main: #3A322C;
+            /* 【修改重點】次要文字：濃郁的可可灰 */
+            --text-muted: #73685F;
             
-            --bar-default: #5bc0be;
-            --bar-compare: #f39c12;
-            --bar-swap: #e74c3c;
-            --bar-sorted: #68ea68;
+            /* 按鈕顏色 - 皆改為粉嫩色調 */
+            --btn-cyan: #B8E3E3;   /* 粉藍綠 */
+            --btn-yellow: #FFF3B0; /* 粉黃 */
+            --btn-green: #C1E1C1;  /* 粉綠 */
+            --btn-red: #FFB7B2;    /* 粉紅 */
+            --btn-blue: #C3CDE6;   /* 粉藍 */
+            
+            /* 排序長條顏色 */
+            --bar-default: #ACE5EE; /* 預設：粉蛋藍 */
+            --bar-compare: #FFDAC1; /* 比較中：粉橘 */
+            --bar-swap: #FFB7B2;    /* 交換中：粉紅（與停止按鈕同色系） */
+            --bar-sorted: #B5EAD7;  /* 已排序：粉薄荷綠 */
+            
+            /* 陰影：讓風格更柔和 */
+            --shadow: 0 8px 20px rgba(180, 170, 150, 0.2);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
@@ -38,25 +50,50 @@
             margin: 0 auto;
         }
 
+        /* 返回按鈕樣式 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid rgba(230, 220, 200, 0.5);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: var(--btn-blue);
+            color: #2B3B5E; /* 懸停時的文字也加深 */
+        }
+
         .panel {
             background-color: var(--panel-bg);
-            border-radius: 12px;
+            border-radius: 15px; 
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8); 
         }
 
         h2 {
-            color: var(--btn-cyan);
+            color: #4A3F38; /* 【修改重點】標題顏色調為濃郁可可色 */
             margin-top: 0;
             display: flex;
             align-items: center;
             font-size: 1.4rem;
         }
         h2::before {
-            content: "❚";
+            content: "✿"; 
             margin-right: 10px;
-            color: var(--btn-cyan);
+            color: #7AAFB8; /* 讓小花符號稍微深一點 */
         }
         
         p {
@@ -84,11 +121,12 @@
         .stat-card {
             background-color: var(--box-bg);
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0,0,0,0.03);
         }
-        .stat-value { font-size: 1.8rem; font-weight: bold; color: var(--btn-cyan); margin-bottom: 5px; }
+        /* 【修改重點】數字顏色改用濃郁的靛藍色 */
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #3D4C85; margin-bottom: 5px; }
         .info-value { font-size: 1.4rem; font-weight: bold; margin-bottom: 5px; }
         .stat-label { color: var(--text-muted); font-size: 0.9rem; }
 
@@ -105,44 +143,82 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--text-main);
         }
 
         input[type="text"] {
-            background-color: var(--box-bg);
-            border: 1px solid #505570;
-            color: white;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--box-bg); 
+            color: var(--text-main);
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             width: 250px;
             font-size: 1rem;
+            transition: border-color 0.2s;
+            font-weight: 500;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--bar-default);
         }
 
         button {
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            color: white;
+            padding: 10px 18px; 
+            border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: opacity 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
         }
-        button:hover { opacity: 0.8; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-cyan { background-color: var(--btn-cyan); color: #111; }
-        .btn-yellow { background-color: var(--btn-yellow); color: #111; }
-        .btn-green { background-color: var(--btn-green); }
-        .btn-red { background-color: var(--btn-red); }
-        .btn-blue { background-color: var(--btn-blue); }
+        /* 【修改重點】按鈕特殊馬卡龍配色，文字顏色大幅加深以提升對比度 */
+        .btn-cyan { background-color: var(--btn-cyan); color: #244B4B; }
+        .btn-yellow { background-color: var(--btn-yellow); color: #5E4E00; }
+        .btn-green { background-color: var(--btn-green); color: #2B4E2B; }
+        .btn-red { background-color: var(--btn-red); color: #632F2A; }
+        .btn-blue { background-color: var(--btn-blue); color: #2B3B5E; }
 
         .slider-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--text-muted);
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        
+        /* 訂製滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: var(--box-bg);
+            border-radius: 4px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #7AAFB8; /* 滑桿按鈕稍微加深 */
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -5px;
         }
 
         /* 視覺化區域 */
@@ -152,8 +228,10 @@
             justify-content: center;
             height: 250px;
             gap: 15px;
-            padding: 20px 0;
+            padding: 20px;
             margin-bottom: 10px;
+            background-color: var(--box-bg); 
+            border-radius: 10px;
         }
 
         .bar-wrapper {
@@ -166,50 +244,78 @@
         .bar {
             width: 40px;
             background-color: var(--bar-default);
-            border-radius: 4px 4px 0 0;
+            border-radius: 20px 20px 0 0; 
             transition: height 0.3s, background-color 0.2s, transform 0.2s;
             position: relative;
+            box-shadow: inset 0 -5px 5px rgba(0,0,0,0.02); 
         }
+        
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+            100% { transform: rotate(0deg); }
+        }
+
         .bar.comparing { background-color: var(--bar-compare); }
-        .bar.swapping { background-color: var(--bar-swap); transform: translateY(-10px); }
+        .bar.swapping { 
+            background-color: var(--bar-swap); 
+            transform: translateY(-10px); 
+            animation: wiggle 0.3s ease infinite;
+        }
         .bar.sorted { background-color: var(--bar-sorted); }
 
-        .bar-value { font-weight: bold; font-size: 0.9rem; margin-bottom: 2px; }
+        /* 【修改重點】柱狀圖上的數字顏色加深 */
+        .bar-value { font-weight: bold; font-size: 0.95rem; margin-bottom: 2px; color: #504840;}
         .bar-index { color: var(--text-muted); font-size: 0.8rem; }
 
         /* 狀態訊息列 */
         .status-banner {
-            background-color: var(--box-bg);
+            background-color: var(--panel-bg);
+            border: 2px solid var(--box-bg);
+            color: var(--text-main);
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-weight: bold;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        .status-banner::before {
+            content: "💡";
+        }
 
         /* 步驟日誌 */
         .log-container {
-            background-color: #1e1f29;
-            border: 1px solid var(--box-bg);
-            border-radius: 8px;
+            background-color: var(--box-bg); 
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px;
             height: 200px;
             overflow-y: auto;
             padding: 15px;
-            font-family: Consolas, monospace;
-            font-size: 0.9rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95rem;
             line-height: 1.5;
+            color: #4A4540; /* 【修改重點】日誌文字加深 */
         }
-        .log-entry { margin-bottom: 4px; }
-        .log-entry.round { color: var(--btn-green); font-weight: bold; margin-top: 10px; }
-        .log-entry.highlight { color: var(--btn-yellow); }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(0,0,0,0.02); padding-bottom: 2px;}
+        /* 【修改重點】日誌中的強調顏色加深以提高辨識度 */
+        .log-entry.round { color: #2E6B2E; font-weight: bold; margin-top: 10px; }
+        .log-entry.highlight { color: #8B5A19; background-color: rgba(255,255,0,0.15); font-weight: 600; }
+        
+        /* 自訂捲軸樣式 */
+        .log-container::-webkit-scrollbar { width: 8px; }
+        .log-container::-webkit-scrollbar-track { background: var(--box-bg); }
+        .log-container::-webkit-scrollbar-thumb { background: #BBAA99; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     
+    <a href="index.html" class="back-btn">⬅ 返回選單</a>
+
     <div class="panel">
         <h2>一、操作原理</h2>
         <p>氣泡排序法 (Bubble Sort) 是一種簡單直觀的排序演算法。它會重複地走訪要排序的數列，一次比較兩個相鄰的元素。如果發現它們的順序錯誤（例如：前大後小），就將它們交換過來。</p>
@@ -220,15 +326,15 @@
         <h2>二、複雜度分析</h2>
         <div class="info-grid">
             <div class="stat-card">
-                <div class="info-value" style="color: var(--btn-green);">O(n)</div>
+                <div class="info-value" style="color: #458E45;">O(n)</div> 
                 <div class="stat-label">最佳時間複雜度<br>(當數列已排序，只需掃描一輪)</div>
             </div>
             <div class="stat-card">
-                <div class="info-value" style="color: var(--btn-yellow);">O(n<sup>2</sup>)</div>
+                <div class="info-value" style="color: #9E7711;">O(n<sup>2</sup>)</div> 
                 <div class="stat-label">平均時間複雜度</div>
             </div>
             <div class="stat-card">
-                <div class="info-value" style="color: var(--btn-red);">O(n<sup>2</sup>)</div>
+                <div class="info-value" style="color: #9E4D4D;">O(n<sup>2</sup>)</div> 
                 <div class="stat-label">最壞時間複雜度<br>(當數列為完全反向)</div>
             </div>
         </div>
@@ -238,7 +344,7 @@
         <h2>三、演算法特性</h2>
         <div class="info-grid two-cols">
             <div class="stat-card">
-                <div class="info-value" style="color: var(--btn-cyan);">穩定 ✓</div>
+                <div class="info-value" style="color: #3E8E8E;">穩定 ✓</div> 
                 <div class="stat-label">穩定性 (Stability)<br>相等元素不會改變原始相對順序</div>
             </div>
             <div class="stat-card">
@@ -253,10 +359,10 @@
         
         <div class="controls-row">
             <div class="input-group">
-                <label>輸入數字 (逗號分隔)：</label>
-                <input type="text" id="arrayInput" value="64, 34, 25, 12, 22, 11, 90">
-                <button class="btn-cyan" onclick="loadArray()">載入 / 重置</button>
-                <button class="btn-yellow" onclick="generateRandom()">隨機產生</button>
+                <label>輸入數字：</label>
+                <input type="text" id="arrayInput" value="64, 34, 25, 12, 22, 11, 90" placeholder="例如: 10, 5, 8">
+                <button class="btn-cyan" onclick="loadArray()">🍭 載入</button>
+                <button class="btn-yellow" onclick="generateRandom()">🎲 隨機</button>
             </div>
         </div>
 
@@ -267,15 +373,15 @@
                 <span id="speedDisplay">700ms</span>
             </div>
             
-            <button class="btn-green" id="startBtn" onclick="startSort()">▶ 開始排序</button>
+            <button class="btn-green" id="startBtn" onclick="startSort()">▶ 開始</button>
             <button class="btn-red" id="stopBtn" onclick="stopSort()" disabled>■ 停止</button>
-            <button class="btn-blue" id="stepBtn" onclick="stepNext()" disabled>⏭ 單步執行</button>
+            <button class="btn-blue" id="stepBtn" onclick="stepNext()" disabled>⏭ 單步</button>
         </div>
 
         <div id="visualizer"></div>
 
         <div class="status-banner" id="statusBanner">
-            等待開始排序...
+            準備就緒，請點擊「開始」或「單步」...
         </div>
 
         <div class="stats-grid">
@@ -338,6 +444,7 @@
 
     function renderArray(comparing = [], swapping = [], sorted = []) {
         visualizer.innerHTML = '';
+        if (array.length === 0) return;
         const maxVal = Math.max(...array, 1); 
         
         array.forEach((val, i) => {
@@ -350,7 +457,8 @@
 
             const bar = document.createElement('div');
             bar.className = 'bar';
-            bar.style.height = `${(val / maxVal) * 200}px`;
+            // 稍微調整高度比例，讓它看起來更可愛
+            bar.style.height = `${(val / maxVal) * 180 + 20}px`; 
 
             if (sorted.includes(i)) bar.classList.add('sorted');
             else if (swapping.includes(i)) bar.classList.add('swapping');
@@ -370,14 +478,22 @@
     function updateStats() {
         document.getElementById('stat-comp').innerText = compCount;
         document.getElementById('stat-swap').innerText = swapCount;
-        document.getElementById('stat-round').innerText = isSorting ? roundCount : (roundCount > 0 ? "完成" : 0);
+        // 微調顯示邏輯：若沒在排序且有輪數，顯示"完成"
+        if(!isSorting && roundCount > 0 && compCount > 0) {
+             document.getElementById('stat-round').innerText = `完成(${roundCount})`;
+        } else {
+             document.getElementById('stat-round').innerText = roundCount;
+        }
         document.getElementById('stat-size').innerText = array.length;
     }
 
     function addLog(message, type = '') {
         const entry = document.createElement('div');
         entry.className = `log-entry ${type}`;
-        entry.innerText = message;
+        // 加上時間戳記讓它更有記錄感
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        entry.innerText = `[${timeStr}] ${message}`;
         logContainer.appendChild(entry);
         logContainer.scrollTop = logContainer.scrollHeight; 
     }
@@ -387,65 +503,98 @@
     function loadArray() {
         if (isSorting) stopSort();
         const inputStr = arrayInput.value;
-        array = inputStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+        // 改進解析邏輯，處理更多空格或空值情況
+        array = inputStr.split(',')
+            .map(s => s.trim())
+            .filter(s => s !== '')
+            .map(s => parseInt(s))
+            .filter(n => !isNaN(n));
         
         if (array.length === 0) {
-            array = [10, 20, 30]; 
-            arrayInput.value = "10, 20, 30";
+            statusBanner.innerText = "⚠️ 請輸入有效的數字列表(逗號分隔)";
+            return;
         }
         
         originalArray = [...array];
         compCount = 0; swapCount = 0; roundCount = 0;
         logContainer.innerHTML = '';
-        addLog(`載入初始陣列: [${array.join(', ')}]`);
-        statusBanner.innerHTML = `🏁 陣列已載入，準備就緒。`;
+        addLog(`🍦 載入新數列: [${array.join(', ')}]`);
+        statusBanner.innerHTML = `🏁 數列已載入。點擊「開始」或「單步」。`;
         
+        // 介面恢復初始狀態
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        stepBtn.disabled = false;
+        isPaused = false;
+        stepBtn.innerText = "⏭ 單步";
+
         updateStats();
         renderArray();
     }
 
     function generateRandom() {
-        const size = Math.floor(Math.random() * 5) + 6; 
+        // 限制隨機數量不要太多，畫面比較好看
+        const size = Math.floor(Math.random() * 5) + 5; // 5~9個
         const randomArr = Array.from({length: size}, () => Math.floor(Math.random() * 90) + 10);
         arrayInput.value = randomArr.join(', ');
         loadArray();
     }
 
+    // 等待函式：融合了速度設定與單步執行邏輯
     async function wait() {
         if (!isSorting) throw new Error("STOPPED");
         
+        // 如果是單步模式，或者是按下暫停
         if (isPaused) {
+            startBtn.disabled = true; // 確保單步時不能按開始
+            stepBtn.innerText = "⏭ 下一步";
+            // 等待直到 resolveStep 被呼叫
             await new Promise(resolve => { resolveStep = resolve; });
             if (!isSorting) throw new Error("STOPPED");
         } else {
+            // 正常自動排序模式：等待設定的時間
             await new Promise(resolve => setTimeout(resolve, speedSlider.value));
             if (!isSorting) throw new Error("STOPPED");
         }
     }
 
     function stepNext() {
-        if (!isSorting) return;
-        isPaused = true; 
-        statusBanner.innerHTML = `⏸ 暫停中 (單步執行模式)...`;
+        if (!isSorting) {
+            // 如果還沒開始，按下單步等同於開始排序並立刻暫停
+            isPaused = true;
+            startSort();
+            return;
+        }
+        
+        isPaused = true; // 確保處於暫停/單步狀態
         if (resolveStep) {
-            const temp = resolveStep;
-            resolveStep = null;
-            temp(); 
+            // 解析 Promise，讓核心演算法往下走一步
+            const tempResolve = resolveStep;
+            resolveStep = null; // 立即清空，防止連續點擊
+            tempResolve(); 
         }
     }
 
     function stopSort() {
+        if(!isSorting) return;
         isSorting = false;
-        if (resolveStep) resolveStep(); 
+        isPaused = false;
+        // 如果卡在等待單步，立刻解析它
+        if (resolveStep) {
+            resolveStep(); 
+            resolveStep = null;
+        }
         
+        // 恢復按鈕狀態
         startBtn.disabled = false;
         stopBtn.disabled = true;
-        stepBtn.disabled = true;
+        stepBtn.disabled = false;
+        stepBtn.innerText = "⏭ 單步";
         
+        // 還原陣列
         array = [...originalArray]; 
-        compCount = 0; swapCount = 0; roundCount = 0;
-        statusBanner.innerHTML = `⏹ 排序已手動停止並重置。`;
-        addLog("--- 執行已手動停止 ---", "highlight");
+        statusBanner.innerHTML = `⏹ 排序已停止並重置數列。`;
+        addLog("--- 🛠 排序手動停止 ---", "highlight");
         updateStats();
         renderArray();
     }
@@ -453,84 +602,114 @@
     // --- 氣泡排序核心演算法 ---
 
     async function startSort() {
-        if (isSorting) return;
+        if (isSorting && !isPaused) return; // 防止重複點擊開始
         
-        isSorting = true;
-        isPaused = false;
+        if (isSorting && isPaused) {
+            // 從暫停恢復自動執行
+            isPaused = false;
+            stepBtn.innerText = "⏭ 單步";
+            if(resolveStep) {
+                const tempResolve = resolveStep;
+                resolveStep = null;
+                tempResolve();
+            }
+            startBtn.disabled = true;
+            return;
+        }
+
+        // --- 真正開始排序 ---
+        loadArray(); // 修正：先載入陣列並重置狀態
+        isSorting = true; // 修正：再將狀態設為排序中
+        
+        // UI 狀態切換
         startBtn.disabled = true;
         stopBtn.disabled = false;
         stepBtn.disabled = false;
         
-        compCount = 0; swapCount = 0; roundCount = 0;
         let n = array.length;
         let sortedIndices = [];
-        logContainer.innerHTML = '';
-        addLog(`▶ 開始執行氣泡排序法，陣列大小: ${n}`, 'highlight');
+        addLog(`🚀 開始氣泡排序 (n=${n})`);
 
         try {
+            // 外層迴圈：控制輪數
             for (let i = 0; i < n - 1; i++) {
                 roundCount++;
-                addLog(`\n--- 第 ${roundCount} 輪 掃描開始 ---`);
+                addLog(`🎨 第 ${roundCount} 輪掃描開始`);
                 updateStats();
 
                 let swappedInThisRound = false;
 
+                // 內層迴圈：進行相鄰比較
                 for (let j = 0; j < n - i - 1; j++) {
-                    statusBanner.innerHTML = `正在比較 [${j}]=${array[j]} 與 [${j+1}]=${array[j+1]}`;
-                    addLog(`比較 [${j}]=${array[j]} vs [${j+1}]=${array[j+1]}`);
+                    // 1. 顯示正在比較的元素
+                    statusBanner.innerHTML = `👀 正在比較索引 [${j}]與[${j+1}] (${array[j]} vs ${array[j+1]})`;
                     renderArray([j, j + 1], [], sortedIndices);
                     compCount++;
                     updateStats();
                     
-                    await wait(); 
+                    await wait(); // --- 等待點/暫停點 ---
 
+                    // 檢查是否需要交換（前大後小）
                     if (array[j] > array[j + 1]) {
-                        statusBanner.innerHTML = `⚡ ${array[j]} > ${array[j+1]}，進行交換！`;
-                        addLog(`  -> 需要交換: ${array[j]} 與 ${array[j+1]}`, 'highlight');
+                        // 2. 顯示準備交換的狀態
+                        statusBanner.innerHTML = `🔄 ${array[j]} > ${array[j+1]}，準備交換！`;
+                        addLog(`🔄 交換 [${j}]與[${j+1}] (${array[j]} ⬌ ${array[j+1]})`, 'highlight');
                         renderArray([], [j, j + 1], sortedIndices);
-                        await wait();
+                        
+                        await wait(); // --- 等待點/暫停點 ---
 
+                        // 實際交換
                         [array[j], array[j + 1]] = [array[j + 1], array[j]];
                         swapCount++;
                         swappedInThisRound = true;
                         updateStats();
                         
+                        // 3. 顯示交換完成後的樣子（強調一下）
                         renderArray([j, j + 1], [], sortedIndices);
                         await wait();
-                    } else {
-                        addLog(`  -> 不換`);
                     }
                 }
                 
+                // 每一輪結束，確定一個最大值
                 const sortedPos = n - 1 - i;
                 sortedIndices.push(sortedPos);
-                addLog(`第 ${roundCount} 輪完成，就位元素: ${array[sortedPos]} (於索引 ${sortedPos})`, 'round');
+                addLog(`✨ 第 ${roundCount} 輪結束，${array[sortedPos]} 已定位到 [${sortedPos}]`, 'round');
                 
+                // 優化：若整輪都沒有交換，代表已排序完成
                 if (!swappedInThisRound) {
-                    addLog(`★ 本輪無任何交換，陣列已提早排序完成！`, 'round');
+                    addLog(`💡 本輪無任何交換，數列已提前排序完成。`);
                     break;
                 }
+                renderArray([], [], sortedIndices); // 更新一下已排序的綠色長條
             }
 
+            // --- 排序正常完成 ---
             isSorting = false;
             startBtn.disabled = false;
             stopBtn.disabled = true;
             stepBtn.disabled = true;
+            stepBtn.innerText = "⏭ 單步";
             
+            // 全部標示為 sorted
             sortedIndices = array.map((_, i) => i);
             renderArray([], [], sortedIndices);
             updateStats();
             
-            statusBanner.innerHTML = `🎉 排序完成！共比較 ${compCount} 次，交換 ${swapCount} 次。最終結果：[${array.join(', ')}]`;
-            addLog(`\n🎉 最終排序結果: [${array.join(', ')}]`, 'round');
+            statusBanner.innerHTML = `🎉 排序完成！共 ${compCount} 次比較，${swapCount} 次交換。`;
+            addLog(`✅ 排序完成！[${array.join(', ')}]`, 'round');
 
         } catch (error) {
+            // 處理手動停止拋出的 Error
             if (error.message !== "STOPPED") {
                 console.error(error);
+                statusBanner.innerText = "❌ 發生錯誤";
             }
+            //如果是 STOPPED 則什麼都不做，因為 stopSort() 已經處理好介面了
         }
     }
 
+    // 初始化載入
+    updateSpeedDisplay();
     loadArray();
 </script>
 
